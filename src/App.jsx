@@ -16,14 +16,30 @@ import SellerLayout from "./pages/seller/SellerLayout";
 import AddProduct from "./pages/seller/AddProduct";
 import ProductList from "./pages/seller/ProductList";
 import Orders from "./pages/seller/Orders";
+
 const App = () => {
-  const isSellerPath = useLocation().pathname.includes("seller");
+  const location = useLocation();
+  const isSellerPath = location.pathname.includes("seller");
   const { showUserLogin, isSeller } = useAppContext();
+
+  // Debug: show current route
+  console.log("[DEBUG] Current path:", location.pathname);
+  console.log("[DEBUG] isSellerPath:", isSellerPath);
+  console.log("[DEBUG] isSeller from context:", isSeller);
+  console.log("[DEBUG] showUserLogin:", showUserLogin);
+
   return (
     <div className="text-default min-h-screen">
+      {/* Debug: Navbar rendering */}
+      {console.log("[DEBUG] Navbar will render:", !isSellerPath)}
       {isSellerPath ? null : <Navbar />}
+
+      {/* Debug: Auth modal */}
+      {showUserLogin && console.log("[DEBUG] Auth modal is visible")}
       {showUserLogin ? <Auth /> : null}
+
       <Toaster />
+
       <div
         className={`${isSellerPath ? "" : "px-6 md:px-16 lg:px-24 xl:px-32"}`}
       >
@@ -35,6 +51,10 @@ const App = () => {
           <Route path="/cart" element={<Cart />} />
           <Route path="/add-address" element={<Address />} />
           <Route path="/my-orders" element={<MyOrders />} />
+
+          {/* Debug: seller routes */}
+          {console.log("[DEBUG] Rendering /seller route")}
+
           <Route
             path="/seller"
             element={isSeller ? <SellerLayout /> : <SellerLogin />}
@@ -48,8 +68,11 @@ const App = () => {
           </Route>
         </Routes>
       </div>
+
+      {console.log("[DEBUG] Footer will render:", !isSellerPath)}
       {isSellerPath ? null : <Footer />}
     </div>
   );
 };
+
 export default App;
