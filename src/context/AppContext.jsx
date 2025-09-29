@@ -1,6 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { dummyProducts } from "../assets/assets";
 import toast from "react-hot-toast";
 import axios from "axios";
 
@@ -12,6 +11,7 @@ export const AppContext = createContext(null);
 export const AppContextProvider = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
   const [user, setUser] = useState(null);
   const [isSeller, setIsSeller] = useState(false);
   const [showUserLogin, setShowUserLogin] = useState(false);
@@ -23,7 +23,7 @@ export const AppContextProvider = ({ children }) => {
 
   // check seller status - only for /seller routes
   const fetchSeller = async () => {
-    if (!isSellerPath) return; // guard for non-seller pages
+    if (!isSellerPath) return; // skip if not a seller page
     try {
       const { data } = await axios.get("/api/seller/is-auth");
       setIsSeller(data.success ? true : false);
@@ -40,10 +40,15 @@ export const AppContextProvider = ({ children }) => {
         setUser(data.user);
         setCartItems(data.user.cart);
       } else {
-        setUser(null); // guest user
+        setUser(null); // guest
       }
     } catch (error) {
-      setUser(null); // guest user
+      if (error.response?.status === 401) {
+        setUser(null); // guest
+      } else {
+        console.error(error);
+        toast.error(error.message);
+      }
     }
   };
 
@@ -61,14 +66,48 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
+  // fetch data when pathname changes
   useEffect(() => {
     fetchProducts();
-    fetchUser();
+    if (!isSellerPath) fetchUser(); // fetch user only for non-seller routes
     fetchSeller(); // only runs if isSellerPath is true
   }, [location.pathname]);
 
-  // rest of your cart logic stays the same
-  // addToCart, updateCartItem, removeFromCart, cartCount, totalCartAmount ...
+  // cart logic
+  const addToCart = (itemId) => {
+    let cartData = structuredClone(cartItems || {});
+    cartData[itemId] = (cartData[itemId] || 0) + 1;
+    setCartItems(cartData);
+    toast.success("Added to cart");
+  };
+
+  const updateCartItem = (itemId, quantity) => {
+    let cartData = structuredClone(cartItems);
+    cartData[itemId] = quantity;
+    setCartItems(cartData);
+    toast.success("Cart updated");
+  };
+
+  const removeFromCart = (itemId) => {
+    let cartData = structuredClone(cartItems);
+    if (cartData[itemId]) {
+      cartData[itemId] -= 1;
+      if (cartData[itemId] === 0) delete cartData[itemId];
+      setCartItems(cartData);
+      toast.success("Removed from cart");
+    }
+  };
+
+  const cartCount = () => Object.values(cartItems).reduce((a, b) => a + b, 0);
+
+  const totalCartAmount = () => {
+    let total = 0;
+    for (const itemId in cartItems) {
+      const product = products.find((p) => p._id === itemId);
+      if (product) total += cartItems[itemId] * product.offerPrice;
+    }
+    return Math.floor(total * 100) / 100;
+  };
 
   const value = {
     navigate,
@@ -80,38 +119,13 @@ export const AppContextProvider = ({ children }) => {
     setShowUserLogin,
     products,
     cartItems,
-    addToCart: (itemId) => {
-      let cartData = structuredClone(cartItems || {});
-      cartData[itemId] = (cartData[itemId] || 0) + 1;
-      setCartItems(cartData);
-      toast.success("Added to cart");
-    },
-    updateCartItem: (itemId, quantity) => {
-      let cartData = structuredClone(cartItems);
-      cartData[itemId] = quantity;
-      setCartItems(cartData);
-      toast.success(`Cart updated`);
-    },
-    removeFromCart: (itemId) => {
-      let cartData = structuredClone(cartItems);
-      if (cartData[itemId]) {
-        cartData[itemId] -= 1;
-        if (cartData[itemId] === 0) delete cartData[itemId];
-        setCartItems(cartData);
-        toast.success("Removed from cart");
-      }
-    },
+    addToCart,
+    updateCartItem,
+    removeFromCart,
     searchQuery,
     setSearchQuery,
-    cartCount: () => Object.values(cartItems).reduce((a, b) => a + b, 0),
-    totalCartAmount: () => {
-      let total = 0;
-      for (const itemId in cartItems) {
-        const product = products.find((p) => p._id === itemId);
-        if (product) total += cartItems[itemId] * product.offerPrice;
-      }
-      return Math.floor(total * 100) / 100;
-    },
+    cartCount,
+    totalCartAmount,
     axios,
     fetchProducts,
     setCartItems,
