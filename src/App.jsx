@@ -19,10 +19,10 @@ import Orders from "./pages/seller/Orders";
 
 const App = () => {
   const location = useLocation();
-  const isSellerPath = location.pathname.includes("seller");
+  const isSellerPath = location.pathname.startsWith("/seller"); // updated
   const { showUserLogin, isSeller } = useAppContext();
 
-  // Debug: show current route
+  // Debug logs
   console.log("[DEBUG] Current path:", location.pathname);
   console.log("[DEBUG] isSellerPath:", isSellerPath);
   console.log("[DEBUG] isSeller from context:", isSeller);
@@ -30,20 +30,19 @@ const App = () => {
 
   return (
     <div className="text-default min-h-screen">
-      {/* Debug: Navbar rendering */}
-      {console.log("[DEBUG] Navbar will render:", !isSellerPath)}
-      {isSellerPath ? null : <Navbar />}
+      {/* Navbar */}
+      {!isSellerPath && <Navbar />}
 
-      {/* Debug: Auth modal */}
-      {showUserLogin && console.log("[DEBUG] Auth modal is visible")}
-      {showUserLogin ? <Auth /> : null}
+      {/* Auth modal */}
+      {showUserLogin && <Auth />}
 
       <Toaster />
 
       <div
-        className={`${isSellerPath ? "" : "px-6 md:px-16 lg:px-24 xl:px-32"}`}
+        className={`${!isSellerPath ? "px-6 md:px-16 lg:px-24 xl:px-32" : ""}`}
       >
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
           <Route path="/products/:category" element={<ProductCategory />} />
@@ -52,25 +51,25 @@ const App = () => {
           <Route path="/add-address" element={<Address />} />
           <Route path="/my-orders" element={<MyOrders />} />
 
-          {/* Debug: seller routes */}
-          {console.log("[DEBUG] Rendering /seller route")}
-
-          <Route
-            path="/seller"
-            element={isSeller ? <SellerLayout /> : <SellerLogin />}
-          >
-            <Route index element={isSeller ? <AddProduct /> : null} />
+          {/* Seller/admin routes - only rendered when path starts with /seller */}
+          {isSellerPath && (
             <Route
-              path="product-list"
-              element={isSeller ? <ProductList /> : null}
-            />
-            <Route path="orders" element={isSeller ? <Orders /> : null} />
-          </Route>
+              path="/seller"
+              element={isSeller ? <SellerLayout /> : <SellerLogin />}
+            >
+              <Route index element={isSeller ? <AddProduct /> : null} />
+              <Route
+                path="product-list"
+                element={isSeller ? <ProductList /> : null}
+              />
+              <Route path="orders" element={isSeller ? <Orders /> : null} />
+            </Route>
+          )}
         </Routes>
       </div>
 
-      {console.log("[DEBUG] Footer will render:", !isSellerPath)}
-      {isSellerPath ? null : <Footer />}
+      {/* Footer */}
+      {!isSellerPath && <Footer />}
     </div>
   );
 };
