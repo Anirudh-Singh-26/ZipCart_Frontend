@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 
+// Axios defaults
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
@@ -38,13 +39,15 @@ export const AppContextProvider = ({ children }) => {
       const { data } = await axios.get("/api/user/is-auth");
       if (data.success) {
         setUser(data.user);
-        setCartItems(data.user.cart);
+        setCartItems(data.user.cart || {}); // fallback to empty object
       } else {
         setUser(null); // guest
+        setCartItems({});
       }
     } catch (error) {
       if (error.response?.status === 401) {
         setUser(null); // guest
+        setCartItems({});
       } else {
         console.error(error);
         toast.error(error.message);
@@ -82,14 +85,14 @@ export const AppContextProvider = ({ children }) => {
   };
 
   const updateCartItem = (itemId, quantity) => {
-    let cartData = structuredClone(cartItems);
+    let cartData = structuredClone(cartItems || {});
     cartData[itemId] = quantity;
     setCartItems(cartData);
     toast.success("Cart updated");
   };
 
   const removeFromCart = (itemId) => {
-    let cartData = structuredClone(cartItems);
+    let cartData = structuredClone(cartItems || {});
     if (cartData[itemId]) {
       cartData[itemId] -= 1;
       if (cartData[itemId] === 0) delete cartData[itemId];
@@ -98,11 +101,12 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  const cartCount = () => Object.values(cartItems).reduce((a, b) => a + b, 0);
+  const cartCount = () =>
+    Object.values(cartItems || {}).reduce((a, b) => a + b, 0);
 
   const totalCartAmount = () => {
     let total = 0;
-    for (const itemId in cartItems) {
+    for (const itemId in cartItems || {}) {
       const product = products.find((p) => p._id === itemId);
       if (product) total += cartItems[itemId] * product.offerPrice;
     }
