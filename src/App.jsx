@@ -16,21 +16,16 @@ import SellerLayout from "./pages/seller/SellerLayout";
 import AddProduct from "./pages/seller/AddProduct";
 import ProductList from "./pages/seller/ProductList";
 import Orders from "./pages/seller/Orders";
+import EditProduct from "./pages/seller/EditProduct"; // ✅ new import
 
 const App = () => {
   const location = useLocation();
-  const isSellerPath = location.pathname.startsWith("/seller"); // updated
+  const isSellerPath = location.pathname.startsWith("/seller");
   const { showUserLogin, isSeller } = useAppContext();
-
-  // Debug logs
-  console.log("[DEBUG] Current path:", location.pathname);
-  console.log("[DEBUG] isSellerPath:", isSellerPath);
-  console.log("[DEBUG] isSeller from context:", isSeller);
-  console.log("[DEBUG] showUserLogin:", showUserLogin);
 
   return (
     <div className="text-default min-h-screen">
-      {/* Navbar */}
+      {/* Navbar (hide on seller side) */}
       {!isSellerPath && <Navbar />}
 
       {/* Auth modal */}
@@ -51,7 +46,7 @@ const App = () => {
           <Route path="/add-address" element={<Address />} />
           <Route path="/my-orders" element={<MyOrders />} />
 
-          {/* Seller/admin routes - only rendered when path starts with /seller */}
+          {/* Seller/admin routes */}
           {isSellerPath && (
             <Route
               path="/seller"
@@ -63,12 +58,17 @@ const App = () => {
                 element={isSeller ? <ProductList /> : null}
               />
               <Route path="orders" element={isSeller ? <Orders /> : null} />
+              {/* ✅ New edit route */}
+              <Route
+                path="edit-product/:id"
+                element={isSeller ? <EditProduct /> : null}
+              />
             </Route>
           )}
         </Routes>
       </div>
 
-      {/* Footer */}
+      {/* Footer (hide on seller side) */}
       {!isSellerPath && <Footer />}
     </div>
   );

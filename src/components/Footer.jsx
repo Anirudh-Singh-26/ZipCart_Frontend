@@ -12,32 +12,7 @@ const Footer = () => {
             Your trusted grocery delivery partner. Fresh products delivered
             straight to your doorstep, anytime you need them.
           </p>
-          <div className="flex items-center gap-4 mt-4 text-gray-600">
-            {/* Instagram */}
-            <a href="#" aria-label="Instagram" className="hover:text-black">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M7.75 2A5.75 ... z" />
-              </svg>
-            </a>
-            {/* Facebook */}
-            <a href="#" aria-label="Facebook" className="hover:text-black">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M13.5 9H15 ... z" />
-              </svg>
-            </a>
-            {/* Twitter */}
-            <a href="#" aria-label="Twitter" className="hover:text-black">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M22 5.92 ... z" />
-              </svg>
-            </a>
-            {/* LinkedIn */}
-            <a href="#" aria-label="LinkedIn" className="hover:text-black">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M4.98 3.5 ... z" />
-              </svg>
-            </a>
-          </div>
+          
         </div>
 
         {/* Company */}

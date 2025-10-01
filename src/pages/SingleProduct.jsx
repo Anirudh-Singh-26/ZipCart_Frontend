@@ -44,19 +44,13 @@ const SingleProduct = () => {
                   onClick={() => setThumbnail(image)}
                   className="border max-w-24 border-gray-500/30 rounded overflow-hidden cursor-pointer"
                 >
-                  <img
-                    src={`${import.meta.env.VITE_BACKEND_URL}/images/${image}`}
-                    alt={`Thumbnail ${index + 1}`}
-                  />
+                  <img src={product.image[index]} alt={`Thumbnail ${index + 1}`} />
                 </div>
               ))}
             </div>
 
             <div className="border border-gray-500/30 max-w-100 rounded overflow-hidden">
-              <img
-                src={`${import.meta.env.VITE_BACKEND_URL}/images/${thumbnail}`}
-                alt="Selected product"
-              />
+              <img src={product.image[0]} alt="Selected product" />
             </div>
           </div>
 

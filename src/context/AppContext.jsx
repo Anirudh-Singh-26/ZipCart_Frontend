@@ -17,14 +17,25 @@ export const AppContextProvider = ({ children }) => {
   const [isSeller, setIsSeller] = useState(false);
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [products, setProducts] = useState([]);
-  const [cartItems, setCartItems] = useState({});
+
+  // Load cart from localStorage initially
+  const [cartItems, setCartItems] = useState(() => {
+    const savedCart = localStorage.getItem("cartItems");
+    return savedCart ? JSON.parse(savedCart) : {};
+  });
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const isSellerPath = location.pathname.startsWith("/seller");
 
-  // check seller status - only for /seller routes
+  // Persist cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("cartItems", JSON.stringify(cartItems));
+  }, [cartItems]);
+
+  // Check seller auth
   const fetchSeller = async () => {
-    if (!isSellerPath) return; // skip if not a seller page
+    if (!isSellerPath) return;
     try {
       const { data } = await axios.get("/api/seller/is-auth");
       setIsSeller(data.success ? true : false);
@@ -33,21 +44,21 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // fetch user auth status - handle guest silently
+  // Fetch user auth and merge cart
   const fetchUser = async () => {
     try {
       const { data } = await axios.get("/api/user/is-auth");
       if (data.success) {
         setUser(data.user);
-        setCartItems(data.user.cart || {}); // fallback to empty object
+        // Merge backend cart with current cart
+        const mergedCart = { ...cartItems, ...(data.user.cart || {}) };
+        setCartItems(mergedCart);
       } else {
-        setUser(null); // guest
-        setCartItems({});
+        setUser(null);
       }
     } catch (error) {
       if (error.response?.status === 401) {
-        setUser(null); // guest
-        setCartItems({});
+        setUser(null);
       } else {
         console.error(error);
         toast.error(error.message);
@@ -55,7 +66,7 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // fetch products
+  // Fetch products
   const fetchProducts = async () => {
     try {
       const { data } = await axios.get("/api/product/list");
@@ -69,36 +80,38 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // fetch data when pathname changes
+  // Run on mount
   useEffect(() => {
     fetchProducts();
-    if (!isSellerPath) fetchUser(); // fetch user only for non-seller routes
-    fetchSeller(); // only runs if isSellerPath is true
-  }, [location.pathname]);
+    fetchUser();
+    fetchSeller();
+  }, []);
 
-  // cart logic
+  // Cart logic
   const addToCart = (itemId) => {
-    let cartData = structuredClone(cartItems || {});
-    cartData[itemId] = (cartData[itemId] || 0) + 1;
-    setCartItems(cartData);
-    toast.success("Added to cart");
+    setCartItems((prev) => {
+      const updated = { ...prev, [itemId]: (prev[itemId] || 0) + 1 };
+      toast.success("Added to cart");
+      return updated;
+    });
   };
 
   const updateCartItem = (itemId, quantity) => {
-    let cartData = structuredClone(cartItems || {});
-    cartData[itemId] = quantity;
-    setCartItems(cartData);
-    toast.success("Cart updated");
+    setCartItems((prev) => {
+      const updated = { ...prev, [itemId]: quantity };
+      toast.success("Cart updated");
+      return updated;
+    });
   };
 
   const removeFromCart = (itemId) => {
-    let cartData = structuredClone(cartItems || {});
-    if (cartData[itemId]) {
-      cartData[itemId] -= 1;
-      if (cartData[itemId] === 0) delete cartData[itemId];
-      setCartItems(cartData);
+    setCartItems((prev) => {
+      if (!prev[itemId]) return prev;
+      const updated = { ...prev, [itemId]: prev[itemId] - 1 };
+      if (updated[itemId] <= 0) delete updated[itemId];
       toast.success("Removed from cart");
-    }
+      return updated;
+    });
   };
 
   const cartCount = () =>
@@ -113,29 +126,33 @@ export const AppContextProvider = ({ children }) => {
     return Math.floor(total * 100) / 100;
   };
 
-  const value = {
-    navigate,
-    user,
-    setUser,
-    isSeller,
-    setIsSeller,
-    showUserLogin,
-    setShowUserLogin,
-    products,
-    cartItems,
-    addToCart,
-    updateCartItem,
-    removeFromCart,
-    searchQuery,
-    setSearchQuery,
-    cartCount,
-    totalCartAmount,
-    axios,
-    fetchProducts,
-    setCartItems,
-  };
-
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider
+      value={{
+        navigate,
+        user,
+        setUser,
+        isSeller,
+        setIsSeller,
+        showUserLogin,
+        setShowUserLogin,
+        products,
+        cartItems,
+        addToCart,
+        updateCartItem,
+        removeFromCart,
+        searchQuery,
+        setSearchQuery,
+        cartCount,
+        totalCartAmount,
+        axios,
+        fetchProducts,
+        setCartItems,
+      }}
+    >
+      {children}
+    </AppContext.Provider>
+  );
 };
 
 export const useAppContext = () => useContext(AppContext);
