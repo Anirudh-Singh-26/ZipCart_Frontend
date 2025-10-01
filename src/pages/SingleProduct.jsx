@@ -3,38 +3,60 @@ import { useAppContext } from "../context/AppContext";
 import { Link, useParams } from "react-router-dom";
 import { assets } from "../assets/assets";
 import ProductCard from "../components/ProductCard";
+
 const SingleProduct = () => {
-  const { products, navigate, addToCart } = useAppContext();
+  const { products, navigate, addToCart, user, setShowUserLogin } =
+    useAppContext();
   const { id } = useParams();
   const [thumbnail, setThumbnail] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const product = products.find((product) => product._id === id);
-  console.log("product", product);
+
   useEffect(() => {
-    if (products.length > 0) {
-      let productsCopy = products.slice();
-      productsCopy = productsCopy.filter(
-        (product) => product.category === product.category
+    if (products.length > 0 && product) {
+      let productsCopy = products.filter(
+        (p) => p.category === product.category && p._id !== product._id
       );
       setRelatedProducts(productsCopy.slice(0, 5));
     }
-  }, [products]);
+  }, [products, product]);
 
   useEffect(() => {
-    setThumbnail(product?.image[0] ? product.image[0] : null);
+    setThumbnail(product?.image[0] || null);
   }, [product]);
+
+  const handleAddToCart = (productId) => {
+    if (!user) {
+      setShowUserLogin(true);
+    } else {
+      addToCart(productId);
+    }
+  };
+
+  const handleBuyNow = (productId) => {
+    if (!user) {
+      setShowUserLogin(true);
+    } else {
+      addToCart(productId);
+      navigate("/cart");
+      scrollTo(0, 0);
+    }
+  };
+
   return (
     product && (
       <div className="mt-16">
+        {/* Breadcrumb */}
         <p>
-          <Link to="/">Home</Link>/<Link to={"/products"}> Products</Link> /
+          <Link to="/">Home</Link>/<Link to="/products"> Products</Link>/
           <Link to={`/products/${product.category.toLowerCase()}`}>
             {" "}
             {product.category}
-          </Link>{" "}
+          </Link>
           /<span className="text-indigo-500"> {product.name}</span>
         </p>
 
+        {/* Product Images */}
         <div className="flex flex-col md:flex-row gap-16 mt-4">
           <div className="flex gap-3">
             <div className="flex flex-col gap-3">
@@ -44,34 +66,31 @@ const SingleProduct = () => {
                   onClick={() => setThumbnail(image)}
                   className="border max-w-24 border-gray-500/30 rounded overflow-hidden cursor-pointer"
                 >
-                  <img src={product.image[index]} alt={`Thumbnail ${index + 1}`} />
+                  <img src={image} alt={`Thumbnail ${index + 1}`} />
                 </div>
               ))}
             </div>
 
             <div className="border border-gray-500/30 max-w-100 rounded overflow-hidden">
-              <img src={product.image[0]} alt="Selected product" />
+              <img src={thumbnail || product.image[0]} alt="Selected product" />
             </div>
           </div>
 
+          {/* Product Details */}
           <div className="text-sm w-full md:w-1/2">
             <h1 className="text-3xl font-medium">{product.name}</h1>
 
             <div className="flex items-center gap-0.5 mt-1">
               {Array(5)
                 .fill("")
-                .map(
-                  (_, i) =>
-                    product.rating >
-                    (
-                      <img
-                        src={i < 4 ? assets.star_icon : assets.star_dull_icon}
-                        alt="star"
-                        key={i}
-                        className="w-3.5 md:w-4"
-                      />
-                    )
-                )}
+                .map((_, i) => (
+                  <img
+                    key={i}
+                    src={i < 4 ? assets.star_icon : assets.star_dull_icon}
+                    alt="star"
+                    className="w-3.5 md:w-4"
+                  />
+                ))}
               <p className="text-base ml-2">(4)</p>
             </div>
 
@@ -79,7 +98,9 @@ const SingleProduct = () => {
               <p className="text-gray-500/70 line-through">
                 MRP: ${product.price}
               </p>
-              <p className="text-2xl font-medium">MRP: ${product.offerPrice}</p>
+              <p className="text-2xl font-medium">
+                Offer: ${product.offerPrice}
+              </p>
               <span className="text-gray-500/70">(inclusive of all taxes)</span>
             </div>
 
@@ -92,17 +113,13 @@ const SingleProduct = () => {
 
             <div className="flex items-center mt-10 gap-4 text-base">
               <button
-                onClick={() => addToCart(product._id)}
+                onClick={() => handleAddToCart(product._id)}
                 className="w-full py-3.5 cursor-pointer font-medium bg-gray-100 text-gray-800/80 hover:bg-gray-200 transition"
               >
                 Add to Cart
               </button>
               <button
-                onClick={() => {
-                  addToCart(product._id);
-                  navigate("/cart");
-                  scrollTo(0, 0);
-                }}
+                onClick={() => handleBuyNow(product._id)}
                 className="w-full py-3.5 cursor-pointer font-medium bg-indigo-500 text-white hover:bg-indigo-600 transition"
               >
                 Buy now
@@ -110,7 +127,8 @@ const SingleProduct = () => {
             </div>
           </div>
         </div>
-        {/* related prodcuts  */}
+
+        {/* Related Products */}
         <div className="flex flex-col items-center mt-20">
           <div className="flex flex-col items-center w-max">
             <p className="text-2xl font-medium">Related Products</p>
@@ -119,11 +137,12 @@ const SingleProduct = () => {
 
           <div className="my-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 items-center justify-center">
             {relatedProducts
-              .filter((product) => product.inStock)
-              .map((product, index) => (
-                <ProductCard key={index} product={product} />
+              .filter((p) => p.inStock)
+              .map((p, index) => (
+                <ProductCard key={index} product={p} />
               ))}
           </div>
+
           <button
             onClick={() => {
               navigate("/products");
@@ -138,4 +157,5 @@ const SingleProduct = () => {
     )
   );
 };
+
 export default SingleProduct;

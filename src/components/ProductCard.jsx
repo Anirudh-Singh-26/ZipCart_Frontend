@@ -2,7 +2,31 @@ import { assets } from "../assets/assets";
 import { useAppContext } from "../context/AppContext";
 
 const ProductCard = ({ product }) => {
-  const { addToCart, removeFromCart, cartItems, navigate } = useAppContext();
+  const {
+    addToCart,
+    removeFromCart,
+    cartItems,
+    navigate,
+    user,
+    setShowUserLogin,
+  } = useAppContext();
+
+  const handleAddToCart = (productId) => {
+    if (!user) {
+      setShowUserLogin(true); // redirect to login modal
+    } else {
+      addToCart(productId);
+    }
+  };
+
+  const handleIncrement = (productId) => {
+    addToCart(productId);
+  };
+
+  const handleDecrement = (productId) => {
+    removeFromCart(productId);
+  };
+
   return (
     product && (
       <div
@@ -21,11 +45,13 @@ const ProductCard = ({ product }) => {
             alt={product.name}
           />
         </div>
+
         <div className="text-gray-500/60 text-sm">
           <p>{product.category}</p>
           <p className="text-gray-700 font-medium text-lg truncate w-full">
             {product.name}
           </p>
+
           <div className="flex items-center gap-0.5">
             {Array(5)
               .fill("")
@@ -39,6 +65,7 @@ const ProductCard = ({ product }) => {
               ))}
             <p>(4)</p>
           </div>
+
           <div className="flex items-end justify-between mt-3">
             <p className="md:text-xl text-base font-medium text-indigo-500">
               ${product.offerPrice}{" "}
@@ -46,13 +73,14 @@ const ProductCard = ({ product }) => {
                 ${product.price}
               </span>
             </p>
+
             <div
               onClick={(e) => e.stopPropagation()}
               className="text-indigo-500"
             >
               {!cartItems?.[product?._id] ? (
                 <button
-                  onClick={() => addToCart(product?._id)}
+                  onClick={() => handleAddToCart(product?._id)}
                   className="flex items-center justify-center gap-1 bg-indigo-100 border border-indigo-300 md:w-[80px] w-[64px] h-[34px] rounded text-indigo-600 font-medium cursor-pointer"
                 >
                   <img src={assets.cart_icon} alt="cart icon" />
@@ -61,7 +89,7 @@ const ProductCard = ({ product }) => {
               ) : (
                 <div className="flex items-center justify-center gap-2 md:w-20 w-16 h-[34px] bg-indigo-500/25 rounded select-none">
                   <button
-                    onClick={() => removeFromCart(product?._id)}
+                    onClick={() => handleDecrement(product?._id)}
                     className="cursor-pointer text-md px-2 h-full"
                   >
                     -
@@ -70,7 +98,7 @@ const ProductCard = ({ product }) => {
                     {cartItems[product?._id]}
                   </span>
                   <button
-                    onClick={() => addToCart(product?._id)}
+                    onClick={() => handleIncrement(product?._id)}
                     className="cursor-pointer text-md px-2 h-full"
                   >
                     +
@@ -84,4 +112,5 @@ const ProductCard = ({ product }) => {
     )
   );
 };
+
 export default ProductCard;

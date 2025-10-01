@@ -4,6 +4,7 @@ import { useAppContext } from "../context/AppContext";
 import { assets } from "../assets/assets";
 import toast from "react-hot-toast";
 import axios from "axios";
+import LoginButton from "./LoginButton";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -18,20 +19,31 @@ const Navbar = () => {
     cartCount,
   } = useAppContext();
 
-  const logout = async () => {
+  const handleLogout = async () => {
     try {
-      const { data } = await axios.get("/api/user/logout");
+      // Call backend logout route
+      const { data } = await axios.get("/api/user/logout", {
+        withCredentials: true, // important to send/clear cookies
+      });
+
       if (data.success) {
+        // Clear frontend state
         setUser(null);
-        navigate("/");
+        setShowUserLogin(false); // close any open login modal
+        setOpen(false); // close mobile menu if open
         toast.success(data.message);
+
+        // Redirect to home
+        navigate("/");
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Failed to logout");
       }
     } catch (error) {
-      toast.error(error.message);
+      console.error("Logout error:", error);
+      toast.error("Something went wrong during logout");
     }
   };
+
 
   useEffect(() => {
     if (searchQuery.length > 0) {
@@ -102,7 +114,7 @@ const Navbar = () => {
                 My Orders
               </li>
               <li
-                onClick={logout}
+                onClick={handleLogout}
                 className="p-2 cursor-pointer hover:bg-gray-100 rounded"
               >
                 Logout
@@ -110,12 +122,7 @@ const Navbar = () => {
             </ul>
           </div>
         ) : (
-          <button
-            onClick={() => setShowUserLogin(true)}
-            className="cursor-pointer px-8 py-2 bg-indigo-500 hover:bg-indigo-600 transition text-white rounded-full"
-          >
-            Login
-          </button>
+          <LoginButton />
         )}
       </div>
 
@@ -192,27 +199,13 @@ const Navbar = () => {
               >
                 My Orders
               </li>
-              <li
-                onClick={() => {
-                  setUser(null);
-                  navigate("/");
-                }}
-                className="p-1.5 cursor-pointer"
-              >
+              <li onClick={handleLogout} className="p-1.5 cursor-pointer">
                 Logout
               </li>
             </ul>
           </div>
         ) : (
-          <button
-            onClick={() => {
-              setOpen(false);
-              setShowUserLogin(true);
-            }}
-            className="cursor-pointer px-8 py-2 bg-indigo-500 hover:bg-indigo-600 transition text-white rounded-full"
-          >
-            Login
-          </button>
+          <LoginButton closeMenu={() => setOpen(false)} />
         )}
       </div>
     </nav>
