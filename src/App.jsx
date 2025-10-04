@@ -2,6 +2,7 @@ import { Routes, Route, useLocation } from "react-router-dom";
 import Products from "./pages/Products";
 import SingleProduct from "./pages/SingleProduct";
 import Home from "./pages/Home";
+import { useEffect } from "react";
 import Cart from "./pages/Cart";
 import Navbar from "./components/Navbar";
 import { Toaster } from "react-hot-toast";
