@@ -1,13 +1,111 @@
-# React + Vite
+# 🎨 ZipCart Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The **ZipCart Frontend** is the user-facing Next.js application of the ZipCart grocery shopping platform. It provides a seamless experience for users to browse products, place orders, manage their address, and interact with their account. Admins or sellers can log in to manage products, update stock status, and view orders.
 
-Currently, two official plugins are available:
+Built with Next.js, it’s optimized for performance, responsiveness, and smooth API integration.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+🔗 **Live Demo**
+[https://your-frontend-live-link](https://your-frontend-live-link)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-# ZipCart_Frontend
+## 📦 Tech Stack
+
+* Next.js
+* Node.js + Express (Backend)
+* MongoDB
+* Axios for API calls
+* JWT & Bcrypt for authentication
+* Tailwind CSS for styling
+* Cloudinary for image uploads
+
+---
+
+## 🌟 Features
+
+✅ User Signup & Login with JWT-based authentication stored in HttpOnly cookies
+✅ Admin/Seller login with role-based access
+✅ Browse and search grocery products
+✅ Add products to cart and place orders
+✅ Manage multiple addresses
+✅ Admin/Seller product management: list products, mark in-stock/out-of-stock
+✅ View placed orders by users
+✅ Responsive and accessible UI
+✅ Integration with ZipCart Backend APIs
+✅ Environment variable configuration for flexible API endpoints
+
+---
+
+## ⚙️ Setup Instructions
+
+1. **Clone the repository**
+
+```bash
+git clone https://github.com/YourUsername/ZipCart-frontend.git
+cd ZipCart-frontend
+```
+
+2. **Install dependencies**
+
+```bash
+npm install
+```
+
+3. **Setup environment variables**
+
+Create a `.env.local` file in the root:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=https://your-backend-api-url
+NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your-cloudinary-preset
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+```
+
+4. **Run development server**
+
+```bash
+npm run dev
+```
+
+---
+
+## 🚀 Production Build
+
+Build for production:
+
+```bash
+npm run build
+```
+
+Preview production build:
+
+```bash
+npm run start
+```
+
+---
+
+## 📚 Usage
+
+* Visit the signup page to create a new account
+* Login as a user to browse products, add to cart, and place orders
+* Login as admin/seller to manage products and view orders
+
+---
+
+## 🔗 Related Repositories
+
+* ZipCart Backend: [https://github.com/YourUsername/ZipCart-backend](https://github.com/YourUsername/ZipCart-backend)
+
+---
+
+## 👤 Author
+
+Anirudh Singh Rathore
+[GitHub Profile](https://github.com/Anirudh-Singh-26)
+
+---
+
+## 📄 License
+
+MIT © Anirudh Singh Rathore
