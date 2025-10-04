@@ -5,7 +5,10 @@ The **ZipCart Frontend** is the user-facing Next.js application of the ZipCart g
 Built with Next.js, it’s optimized for performance, responsiveness, and smooth API integration.
 
 🔗 **Live Demo**
-[https://your-frontend-live-link](https://your-frontend-live-link)
+[https://zip-cart-frontend.vercel.app/](https://zip-cart-frontend.vercel.app/)
+
+📦 **Backend Repository**
+For the backend part, please visit the ZipCart Backend repository: [https://github.com/Anirudh-Singh-26/ZipCart_Backend](https://github.com/Anirudh-Singh-26/ZipCart_Backend)
 
 ---
 
@@ -41,8 +44,8 @@ Built with Next.js, it’s optimized for performance, responsiveness, and smooth
 1. **Clone the repository**
 
 ```bash
-git clone https://github.com/YourUsername/ZipCart-frontend.git
-cd ZipCart-frontend
+git clone https://github.com/Anirudh-Singh-26/ZipCart_Frontend
+cd frontend
 ```
 
 2. **Install dependencies**
@@ -90,12 +93,6 @@ npm run start
 * Visit the signup page to create a new account
 * Login as a user to browse products, add to cart, and place orders
 * Login as admin/seller to manage products and view orders
-
----
-
-## 🔗 Related Repositories
-
-* ZipCart Backend: [https://github.com/YourUsername/ZipCart-backend](https://github.com/YourUsername/ZipCart-backend)
 
 ---
 
