@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -17,6 +17,7 @@ export const AppContextProvider = ({ children }) => {
   const [isSeller, setIsSeller] = useState(false);
   const [showUserLogin, setShowUserLogin] = useState(false);
   const [products, setProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Load cart from localStorage initially
   const [cartItems, setCartItems] = useState(() => {
@@ -24,33 +25,40 @@ export const AppContextProvider = ({ children }) => {
     return savedCart ? JSON.parse(savedCart) : {};
   });
 
-  const [searchQuery, setSearchQuery] = useState("");
-
   const isSellerPath = location.pathname.startsWith("/seller");
+  const hasInitialized = useRef(false); // ✅ prevent duplicate API calls
 
   // Persist cart to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem("cartItems", JSON.stringify(cartItems));
   }, [cartItems]);
 
-  // Check seller auth
+  // --- API: Seller Auth ---
   const fetchSeller = async () => {
     if (!isSellerPath) return;
     try {
       const { data } = await axios.get("/api/seller/is-auth");
       setIsSeller(data.success ? true : false);
-    } catch (error) {
+    } catch {
       setIsSeller(false);
     }
   };
 
-  // Fetch user auth and merge cart
+  // --- API: User Auth (optimized) ---
   const fetchUser = async () => {
     try {
+      // ✅ Only call if cookie token exists
+      const hasToken = document.cookie.includes("token=");
+      if (!hasToken) {
+        setUser(null);
+        return;
+      }
+
       const { data } = await axios.get("/api/user/is-auth");
       if (data.success) {
         setUser(data.user);
-        // Merge backend cart with current cart
+
+        // Merge backend cart with local cart
         const mergedCart = { ...cartItems, ...(data.user.cart || {}) };
         setCartItems(mergedCart);
       } else {
@@ -60,13 +68,13 @@ export const AppContextProvider = ({ children }) => {
       if (error.response?.status === 401) {
         setUser(null);
       } else {
-        console.error(error);
+        console.error("User fetch error:", error.message);
         toast.error(error.message);
       }
     }
   };
 
-  // Fetch products
+  // --- API: Products ---
   const fetchProducts = async () => {
     try {
       const { data } = await axios.get("/api/product/list");
@@ -80,14 +88,31 @@ export const AppContextProvider = ({ children }) => {
     }
   };
 
-  // Run on mount
+  // --- Initialize (runs once) ---
   useEffect(() => {
-    fetchProducts();
-    fetchUser();
-    fetchSeller();
+    if (hasInitialized.current) return;
+    hasInitialized.current = true;
+
+    const initializeApp = async () => {
+      try {
+        // ✅ Optional: Ping backend once to wake Render server
+        await fetch(`${import.meta.env.VITE_BACKEND_URL}/ping`).catch(
+          () => {}
+        );
+
+        // Small delay to avoid Render overload
+        await new Promise((res) => setTimeout(res, 300));
+
+        await Promise.all([fetchProducts(), fetchUser(), fetchSeller()]);
+      } catch (err) {
+        console.warn("Initialization error:", err.message);
+      }
+    };
+
+    initializeApp();
   }, []);
 
-  // Cart logic
+  // --- Cart logic ---
   const addToCart = (itemId) => {
     setCartItems((prev) => {
       const updated = { ...prev, [itemId]: (prev[itemId] || 0) + 1 };
