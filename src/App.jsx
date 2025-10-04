@@ -23,6 +23,20 @@ const App = () => {
   const isSellerPath = location.pathname.startsWith("/seller");
   const { showUserLogin, isSeller } = useAppContext();
 
+  // ✅ Backend Wake-up Effect
+  useEffect(() => {
+    const pingBackend = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/ping`);
+        console.log("✅ Backend pinged:", res.status);
+      } catch (error) {
+        console.log("⚠️ Backend ping failed:", error.message);
+      }
+    };
+
+    pingBackend();
+  }, []);
+
   return (
     <div className="text-default min-h-screen">
       {/* Navbar (hide on seller side) */}
