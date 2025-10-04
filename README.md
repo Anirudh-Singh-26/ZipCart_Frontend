@@ -1,8 +1,8 @@
 # 🎨 ZipCart Frontend
 
-The **ZipCart Frontend** is the user-facing Next.js application of the ZipCart grocery shopping platform. It provides a seamless experience for users to browse products, place orders, manage their address, and interact with their account. Admins or sellers can log in to manage products, update stock status, and view orders.
+The **ZipCart Frontend** is the user-facing React.js application of the ZipCart grocery shopping platform. It provides a seamless experience for users to browse products, place orders, manage their address, and interact with their account. Admins or sellers can log in to manage products, update stock status, and view orders.
 
-Built with Next.js, it’s optimized for performance, responsiveness, and smooth API integration.
+Built with React.js, it’s optimized for performance, responsiveness, and smooth API integration.
 
 🔗 **Live Demo**
 [https://zip-cart-frontend.vercel.app/](https://zip-cart-frontend.vercel.app/)
@@ -14,7 +14,7 @@ For the backend part, please visit the ZipCart Backend repository: [https://gith
 
 ## 📦 Tech Stack
 
-* Next.js
+* React.js
 * Node.js + Express (Backend)
 * MongoDB
 * Axios for API calls
@@ -59,9 +59,9 @@ npm install
 Create a `.env.local` file in the root:
 
 ```env
-NEXT_PUBLIC_API_BASE_URL=https://your-backend-api-url
-NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET=your-cloudinary-preset
-NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+PUBLIC_API_BASE_URL=https://your-backend-api-url
+PUBLIC_CLOUDINARY_UPLOAD_PRESET=your-cloudinary-preset
+PUBLIC_CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
 ```
 
 4. **Run development server**
